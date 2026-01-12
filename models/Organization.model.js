@@ -147,7 +147,7 @@ const organizationSchema = new mongoose.Schema({
 // ============ INDEXES ============
 
 // Primary lookup by slug (subdomain/URL identification)
-organizationSchema.index({ slug: 1 }, { unique: true });
+// organizationSchema.index({ slug: 1 }, { unique: true }); // Removed: duplicate with schema definition
 
 // Status queries for admin dashboard
 organizationSchema.index({ status: 1, createdAt: -1 });
