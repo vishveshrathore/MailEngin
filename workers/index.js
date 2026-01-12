@@ -31,6 +31,10 @@ async function startWorkers() {
     require('./campaign.worker');
     require('./analytics.worker');
 
+    // Start automation worker
+    const automationWorker = require('./automation.worker');
+    automationWorker.start();
+
     // Start scheduler
     const { startScheduler } = require('../jobs/scheduler');
     startScheduler();

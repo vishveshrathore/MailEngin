@@ -13,6 +13,9 @@ const templateRoutes = require('./routes/template.routes');
 const campaignRoutes = require('./routes/campaign.routes');
 const queueRoutes = require('./routes/queue.routes');
 const webhookRoutes = require('./routes/webhook.routes');
+const trackingRoutes = require('./routes/tracking.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
+const automationRoutes = require('./routes/automation.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,11 +47,16 @@ app.get('/', (req, res) => {
   });
 });
 
+// Tracking routes (public, no auth required)
+app.use('/t', trackingRoutes);
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/campaigns', campaignRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/automations', automationRoutes);
 app.use('/api/admin/queues', queueRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
