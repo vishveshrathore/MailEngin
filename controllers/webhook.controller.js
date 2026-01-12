@@ -1,9 +1,4 @@
-/**
- * Webhook Controller
- * 
- * Handles incoming webhooks from AWS SNS for SES notifications
- * (bounces, complaints, deliveries).
- */
+
 
 const crypto = require('crypto');
 const https = require('https');
