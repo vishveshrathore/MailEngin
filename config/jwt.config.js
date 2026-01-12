@@ -1,8 +1,3 @@
-/**
- * JWT Configuration
- * 
- * Central configuration for JWT token management.
- */
 
 require('dotenv').config();
 
