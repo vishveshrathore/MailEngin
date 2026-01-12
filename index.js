@@ -4,7 +4,18 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./utils/db.js');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
+const logger = require('./utils/logger');
 require('dotenv').config();
+
+// Security middleware
+const {
+  globalLimiter,
+  authLimiter,
+  checkBlockedIP,
+  securityHeaders,
+  sanitizeRequest,
+} = require('./middlewares/security.middleware');
+const { auditLogger } = require('./middlewares/audit.middleware');
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
@@ -16,9 +27,15 @@ const webhookRoutes = require('./routes/webhook.routes');
 const trackingRoutes = require('./routes/tracking.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const automationRoutes = require('./routes/automation.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Security middleware (apply first)
+app.use(checkBlockedIP);
+app.use(securityHeaders);
+app.use(globalLimiter);
 
 // CORS configuration
 app.use(cors({
@@ -32,10 +49,16 @@ app.use(cors({
 }));
 
 // Middleware
-app.use(morgan('dev'));
+app.use(morgan('combined', { stream: logger.stream }));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request sanitization
+app.use(sanitizeRequest);
+
+// Audit logging for API routes
+app.use('/api', auditLogger());
 
 // Health check
 app.get('/', (req, res) => {
@@ -50,13 +73,14 @@ app.get('/', (req, res) => {
 // Tracking routes (public, no auth required)
 app.use('/t', trackingRoutes);
 
-// API Routes
-app.use('/api/auth', authRoutes);
+// API Routes - Auth with stricter rate limiting
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/automations', automationRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/admin/queues', queueRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
@@ -69,11 +93,11 @@ app.use(errorHandler);
 // Connect to database and start server
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`✅ Server Running at http://localhost:${PORT}`);
-    console.log(`📧 Auth API: http://localhost:${PORT}/api/auth`);
+    logger.info(`✅ Server Running at http://localhost:${PORT}`);
+    logger.info(`📧 Auth API: http://localhost:${PORT}/api/auth`);
   });
 }).catch((err) => {
-  console.error('❌ Failed to connect to database:', err.message);
+  logger.error('❌ Failed to connect to database:', err);
   process.exit(1);
 });
 

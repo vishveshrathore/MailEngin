@@ -37,12 +37,6 @@ const awsConfig = {
         complaintTopicArn: process.env.SNS_COMPLAINT_TOPIC_ARN,
         deliveryTopicArn: process.env.SNS_DELIVERY_TOPIC_ARN,
     },
-
-    // S3 Configuration (for attachments, exports)
-    s3: {
-        bucket: process.env.AWS_S3_BUCKET,
-        region: process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1',
-    },
 };
 
 module.exports = awsConfig;

@@ -165,6 +165,29 @@ const requireAdmin = requireRole('owner', 'admin');
 const requireEditor = requireRole('owner', 'admin', 'editor');
 
 /**
+ * Require super admin (platform admin, not org admin)
+ */
+const requireSuperAdmin = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required',
+            code: 'NOT_AUTHENTICATED',
+        });
+    }
+
+    if (req.user.role !== 'superadmin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Super admin access required',
+            code: 'FORBIDDEN',
+        });
+    }
+
+    next();
+};
+
+/**
  * Check specific permission
  * @param {string} resource - Resource name (campaigns, contacts, etc)
  * @param {string} action - Action name (create, edit, delete, etc)
@@ -214,5 +237,7 @@ module.exports = {
     requireOwner,
     requireAdmin,
     requireEditor,
+    requireSuperAdmin,
     requirePermission,
 };
+

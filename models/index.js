@@ -7,7 +7,6 @@ const Template = require('./Template.model');
 const Campaign = require('./Campaign.model');
 const EmailLog = require('./EmailLog.model');
 const Automation = require('./Automation.model');
-const Subscription = require('./Subscription.model');
 
 module.exports = {
     User,
@@ -19,5 +18,4 @@ module.exports = {
     Campaign,
     EmailLog,
     Automation,
-    Subscription,
 };
